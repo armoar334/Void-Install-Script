@@ -167,7 +167,7 @@ ask_silent() {
 	if [[ -z $char ]]; then
 		break
 	elif [[ "$char" == '' ]]; then
-		selected="${selected:0:$((${#selected}-1))}"
+		if [[ "${#selected}" -gt 0 ]]; then selected="${selected:0:$((${#selected}-1))}"; fi
 	else
 		selected+=$char
 	fi
