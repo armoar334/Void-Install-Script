@@ -1,4 +1,2 @@
-## WARNING: NONE OF THIS WORKS LMAO
-
-# Void-Install-Script
-My personal Void install script, can also clone home
+# blackhole.sh
+WIP Void Linux installation script w/ a sleek bash TUI framework thrown in for free
