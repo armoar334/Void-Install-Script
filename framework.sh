@@ -40,7 +40,7 @@ box() {
 }
 
 list() {
-	items=($*)
+	items=("$@")
 	top=0
 	current=0
 	getting=1
@@ -113,8 +113,13 @@ dual_list() {
 		printf '\e[30m\e[47m'"${p1_items[$current]}"'%-*s\e[0m' "$(( $(( half_cols - 2 )) - ${#p1_items[$current]} ))"
 
 		box 1 $((half_cols+1)) $lines $cols
-		printf '\e[2;'$((half_cols+2))'H'
-		printf "${p2_items[$current]}"
+		count=0
+		while IFS= read -r line;
+		do
+			printf '\e['$((count+2))';'$((half_cols+2))'H'
+			printf "$line"
+			((count++))
+		done <<<$(printf "${p2_items[$current]}" | fold -s -w "$((half_cols-2))")
 
 		)
 
@@ -129,7 +134,7 @@ dual_list() {
 			'[A') ((current-=1)) ;;
 			'[B') ((current+=1)) ;;
 			'q'|'Q') getting=0 ;;
-			'') selected="${items[$current]}" && getting=0;;
+			'') selected="${p1_items[$current]}" && getting=0;;
 		esac
 		if [[ $current -le 0 ]]; then current=0; fi
 		if [[ $current -ge $(( ${#p1_items[@]} - 1 )) ]]; then current=$(( ${#p1_items[@]} - 1 )); fi
@@ -146,6 +151,29 @@ ask_text() {
 	printf '\e['$half_lines';'$((half_cols-19))'H'
         printf '\e[?25h'
         read selected
+        printf '\e[?25l'
+}
+
+ask_silent() {
+	ask="$*"
+	box 1 1 $lines $cols
+	box $(($half_lines-1)) $((half_cols-20)) $((half_lines+1)) $((half_cols+20))
+	printf '\e['$((half_lines-1))';'$((half_cols-19))'H'
+	printf "$ask"
+	printf '\e['$half_lines';'$((half_cols-19))'H'
+        printf '\e[?25h'
+	selected=''
+	while IFS= read -r -s -n1 char; do
+	if [[ -z $char ]]; then
+		break
+	elif [[ "$char" == '' ]]; then
+		selected="${selected:0:$((${#selected}-1))}"
+	else
+		selected+=$char
+	fi
+	printf '\e['$half_lines';'$((half_cols-19))'H'
+	printf "%*s" "${#selected}" | tr ' ' '*'
+	done
         printf '\e[?25l'
 }
 
